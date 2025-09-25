@@ -3,14 +3,15 @@ name: Build and Test Docker UI
 on:
   push:
     branches:
-      - main   # Change to your branch if different
+      - main
+  workflow_dispatch:   # Optional manual trigger
 
 jobs:
   build-run:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the latest code from the branch
+      # 1. Checkout repository code
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -25,10 +26,18 @@ jobs:
       - name: Build Docker image
         run: docker build -t my-ui:latest .
 
-      # 4. Run Docker container inside GitHub VM
+      # 4. Run Docker container and wait
       - name: Run Docker container
-        run: docker run -d -p 8080:80 my-ui:latest
+        run: |
+          docker run -d --name my-ui-test -p 8080:80 my-ui:latest
+          sleep 5   # Wait for Nginx to start
 
       # 5. Test if HTML page is served
       - name: Test HTML
         run: curl http://localhost:8080
+
+      # 6. Optional: stop and remove the container
+      - name: Clean up container
+        run: |
+          docker stop my-ui-test
+          docker rm my-ui-test
