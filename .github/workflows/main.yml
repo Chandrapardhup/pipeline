@@ -21,7 +21,7 @@ jobs:
 
       # 3. Build Docker image from your folder
       - name: Build Docker image
-        run: docker build -t my-ui:latest ./my-ui
+        run: docker build -t my-ui:latest .
 
       # 4. Run Docker container inside GitHub VM
       - name: Run Docker container
