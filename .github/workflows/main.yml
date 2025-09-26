@@ -14,7 +14,7 @@ jobs:
       - name: Save EC2 Key
         run: |
           echo "${{ secrets.EC2_KEY }}" > ec2.pem
-          chmod 400 ec2.pem
+          chmod 600 ec2.pem
 
       - name: Deploy to EC2
         run: |
