@@ -1,11 +1,10 @@
-# Use a lightweight nginx image as base
+# Use nginx lightweight image
 FROM nginx:alpine
 
-# Copy HTML file into nginx's default web folder
+# Copy your HTML into nginx's web root
 COPY index.html /usr/share/nginx/html/index.html
 
-# Expose port 80 so container can serve web pages
+# Expose port 80 inside container
 EXPOSE 80
 
-# Run nginx in foreground to keep container alive
-CMD ["nginx", "-g", "daemon off;"]
+# nginx will auto-start with default CMD
