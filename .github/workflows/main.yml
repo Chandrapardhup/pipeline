@@ -28,4 +28,9 @@ jobs:
       # Step 4: Run deploy script on EC2
       - name: Run deploy script on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ec2.pem ubuntu@65.1.64.5 "bash ~/deploy.sh"
+          ssh -o StrictHostKeyChecking=no -i ec2.pem ubuntu@65.1.64.5 "
+          DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+          bash ~/deploy.sh
+          "
+
