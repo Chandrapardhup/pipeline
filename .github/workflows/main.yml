@@ -18,13 +18,4 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ec2.pem ubuntu@65.1.64.5 "
-            git clone https://github.com/Chandrapardhup/pipeline.git || (cd pipeline && git pull)
-            cd pipeline
-            sudo docker build -t pipeline-app .
-            sudo docker stop pipeline-app || true && docker rm pipeline-app || true
-            sudo docker run -d -p 4200:80 --name pipeline-app pipeline-app
-            echo '${{ secrets.DOCKER_PASSWORD }}' | sudo docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
-            sudo docker tag pipeline-app:latest ${{ secrets.DOCKER_USERNAME }}/pipeline-app:latest
-            sudo docker push ${{ secrets.DOCKER_USERNAME }}/pipeline-app:latest
-          "
+          ssh -o StrictHostKeyChecking=no -i ec2.pem ubuntu@65.1.64.5 "bash ~/deploy.sh"
