@@ -3,34 +3,33 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main  # or the branch you want to trigger deployment
+      - main  # deploy only on main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
+      # Step 1: Checkout repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Save EC2 private key from secrets
+      # Step 2: Save EC2 Key
       - name: Save EC2 Key
         run: |
           echo "${{ secrets.EC2_KEY }}" > ec2.pem
           chmod 600 ec2.pem
 
-      # Step 3: Copy deploy script to EC2
-      - name: Copy deploy script to EC2
+      # Step 3: Copy deploy.sh to EC2
+      - name: Copy deploy script
         run: |
           scp -o StrictHostKeyChecking=no -i ec2.pem deploy.sh ubuntu@65.1.64.5:~
 
-      # Step 4: Run deploy script on EC2
-      - name: Run deploy script on EC2
+      # Step 4: Run deploy.sh on EC2
+      - name: Execute deploy script
         run: |
           ssh -o StrictHostKeyChecking=no -i ec2.pem ubuntu@65.1.64.5 "
-          DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
-          bash ~/deploy.sh
+            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            export DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+            bash ~/deploy.sh
           "
-
