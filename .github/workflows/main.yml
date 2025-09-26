@@ -19,7 +19,7 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i ec2.pem ubuntu@65.1.64.5 "
-            git clone https://github.com/<your-username>/pipeline.git || (cd pipeline && git pull)
+            git clone https://github.com/Chandrapardhup/pipeline.git || (cd pipeline && git pull)
             cd pipeline
             docker build -t pipeline-app .
             docker stop pipeline-app || true && docker rm pipeline-app || true
