@@ -1,42 +1,30 @@
-name: Build and Test Docker UI
+name: Deploy to EC2
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
-  build-run:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Docker login using GitHub secrets
-      - name: Login to Docker
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # 3. Build Docker image
-      - name: Build Docker image
-        run: docker build -t my-ui:latest .
-
-      # 4. Run Docker container and wait
-      - name: Run Docker container
+      - name: Save EC2 Key
         run: |
-          docker run -d --name my-ui-test -p 8080:80 my-ui:latest
-          sleep 5   # Wait for Nginx to start
+          echo "${{ secrets.EC2_KEY }}" > ec2.pem
+          chmod 400 ec2.pem
 
-      # 5. Test if HTML page is served
-      - name: Test HTML
-        run: curl http://localhost:8080
-
-      # 6. Optional: stop and remove the container
-      - name: Clean up container
+      - name: Deploy to EC2
         run: |
-          docker stop my-ui-test
-          docker rm my-ui-test
+          ssh -o StrictHostKeyChecking=no -i ec2.pem ubuntu@<65.1.64.5> "
+            git clone https://github.com/<your-username>/pipeline.git || (cd pipeline && git pull)
+            cd pipeline
+            docker build -t pipeline-app .
+            docker stop pipeline-app || true && docker rm pipeline-app || true
+            docker run -d -p 8080:8080 --name pipeline-app pipeline-app
+            echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
+            docker tag pipeline-app:latest ${{ secrets.DOCKER_USERNAME }}/pipeline-app:latest
+            docker push ${{ secrets.DOCKER_USERNAME }}/pipeline-app:latest
+          "
