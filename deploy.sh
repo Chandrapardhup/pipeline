@@ -12,7 +12,7 @@ sudo docker stop pipeline-app || true
 sudo docker rm pipeline-app || true
 
 # Run container (port 80 in container → 8080 on EC2)
-sudo docker run -d -p 22:22 --name pipeline-app pipeline-app
+sudo docker run -d -p 8000:8000 --name pipeline-app pipeline-app
 
 # Docker login & push
 echo "$DOCKER_PASSWORD" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
