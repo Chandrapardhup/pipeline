@@ -1,35 +1,22 @@
-name: Deploy to EC2,Second time
-
+name: deploy to s3 
 on:
   push:
-    branches:
-      - main  # deploy only on main branch
+    branch: main
 
 jobs:
-  deploy:
+  deploy:  
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Checkout repo
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Step 2: Save EC2 Key
-      - name: Save EC2 Key
-        run: |
-          echo "${{ secrets.EC2_KEY }}" > ec2.pem
-          chmod 600 ec2.pem
-
-      # Step 3: Copy deploy.sh to EC2
-      - name: Copy deploy script
-        run: |
-          scp -o StrictHostKeyChecking=no -i ec2.pem deploy.sh ubuntu@65.1.64.5:~
-
-      # Step 4: Run deploy.sh on EC2
-      - name: Execute deploy script
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ec2.pem ubuntu@65.1.64.5 "
-            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-            export DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
-            bash ~/deploy.sh
-          "
+      -name: checkout1
+       uses: actions/checkout@v3
+  
+      -name: upload to s3
+       uses: jakejarvis/s3-sync-action@v1
+       with: --acl public-read
+      env:
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "us-east-1"
+          SOURCE_DIR: "./"   # folder or file you want to upload
+      
